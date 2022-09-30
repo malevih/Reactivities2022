@@ -7,10 +7,9 @@ import ActivityForm from "../form/ActivityForm";
 import ActivityList from "./ActivityList";
 
 export default observer(function ActivityDashboard() {
-
-
 	const {activityStore} = useStore();
 	const {selectedActivity, editMode} = activityStore;
+	
 	return (
 		<Grid>
 			<Grid.Column width='10'>
@@ -18,7 +17,7 @@ export default observer(function ActivityDashboard() {
 			</Grid.Column>
 			<Grid.Column width='6'>
 				{selectedActivity && !editMode &&
-				<ActivityDetails activity={selectedActivity} />}
+				<ActivityDetails />}
 				{editMode &&
 				<ActivityForm />}
 			</Grid.Column>

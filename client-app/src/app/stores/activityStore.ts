@@ -54,7 +54,7 @@ export default class ActivityStore {
 		this.editMode = false;
 	}
 
-	createActivity =async (activity:Activity) => {
+	createActivity = async (activity:Activity) => {
 		this.loading = true;
 		activity.id = uuid();
 		try {
