@@ -3,7 +3,7 @@ import React, { ChangeEvent, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Button, Form, Segment } from "semantic-ui-react";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
-import { Activity } from "../../../app/modules/activity";
+import { Activity } from "../../../app/models/activity";
 import { useStore } from "../../../app/stores/store";
 import {v4 as uuid} from 'uuid';
 
