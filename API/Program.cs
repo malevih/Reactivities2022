@@ -1,17 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Persistence;
 
 namespace API
 {
-	public class Program
+    public class Program
 	{
 		public static async Task Main(string[] args)
 		{
@@ -31,7 +23,6 @@ namespace API
 				var logger = services.GetRequiredService<ILogger<Program>>();
 				logger.LogError(ex, "An error occured during migration");
 			}
-
 			await host.RunAsync();
 		}
 
