@@ -1,36 +1,63 @@
+using API.Extensions;
+using API.Middleware;
+using Domain;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
-namespace API
+var builder = WebApplication.CreateBuilder(args);
+
+//add services to the container
+
+builder.Services.AddControllers(opt =>
 {
-    public class Program
-	{
-		public static async Task Main(string[] args)
-		{
-			var host = CreateHostBuilder(args).Build();
+    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+    opt.Filters.Add(new AuthorizeFilter(policy));
+});
+builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddIdentityServices(builder.Configuration);
 
-			using var scope = host.Services.CreateScope();
-			var services = scope.ServiceProvider;
+// Configure the HTTP request pipeline
 
-			try
-			{
-				var context = services.GetRequiredService<DataContext>();
-				await context.Database.MigrateAsync();
-				await Seed.SeedData(context);
-			}
-			catch (Exception ex)
-			{
-				var logger = services.GetRequiredService<ILogger<Program>>();
-				logger.LogError(ex, "An error occured during migration");
-			}
-			await host.RunAsync();
-		}
+var app = builder.Build();
 
-		public static IHostBuilder CreateHostBuilder(string[] args) =>
-			Host.CreateDefaultBuilder(args)
-				.ConfigureWebHostDefaults(webBuilder =>
-				{
-					webBuilder.UseStartup<Startup>();
-				});
-	}
+app.UseMiddleware<ExceptionMiddleware>();
+
+if (builder.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebAPIv5 v1"));
 }
+
+//app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.UseCors("CorsPolicy");
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+//Main 
+
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+//DatabaseContext
+try
+{
+    var context = services.GetRequiredService<DataContext>();
+    var userManager = services.GetRequiredService<UserManager<AppUser>>();
+    await context.Database.MigrateAsync();
+    await Seed.SeedData(context, userManager);
+}
+catch (Exception ex)
+{
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "An error occured during migration");
+}
+
+app.Run();
+
