@@ -9,7 +9,6 @@ using System.Security.Claims;
 
 namespace API.Controllers
 {
-    [AllowAnonymous]
     [ApiController]
     [Route("api/[controller]")]
     public class AccountController: ControllerBase
@@ -45,10 +44,15 @@ namespace API.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<UserDTO>> Register (RegisterDTO registerDTO)
         {
-            if(await _userManager.Users.AnyAsync(x => x.UserName == registerDTO.Username)) return BadRequest("Username is already taken");
+            if(await _userManager.Users.AnyAsync(x => x.UserName == registerDTO.Username)) {
+                ModelState.AddModelError("username", "Username taken");
+                return ValidationProblem();
+            }
 
-            if (await _userManager.Users.AnyAsync(x => x.Email == registerDTO.Email)) return BadRequest("Email is already taken");
-
+            if (await _userManager.Users.AnyAsync(x => x.Email == registerDTO.Email)) {
+                ModelState.AddModelError("email", "Email taken");
+                return ValidationProblem();
+            }
             var user = new AppUser
             {
                 DisplayName = registerDTO.DisplayName,
